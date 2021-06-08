@@ -28,6 +28,7 @@ jobs:
           opam pin add fromager .
 
           # make sure opam package file is valid
+          opam install opam-dune-lint
           opam lint
           opam-dune-lint
 
