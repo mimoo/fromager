@@ -41,7 +41,6 @@ let parse_toml filename : config option =
 let ocamlformat args =
   let args = String.concat ~sep:" " args in
   let command = "ocamlformat " ^ args in
-  let () = printf "%s\n" command in
   Sys.command_exn command
 
 let run_ocamlformat ~(write : bool) (filename : string) =
@@ -55,7 +54,6 @@ let run_ocamlformat ~(write : bool) (filename : string) =
 
 let is_ignored_dir (path : string) ~config =
   let path = Filename.basename path in
-  printf "path analyzed: %s\n" path;
   let first_letter = path.[0] in
   (* ignore _* and .* folders *)
   if
@@ -69,7 +67,6 @@ let is_ignored_dir (path : string) ~config =
 
 let is_ignored_file path ~config =
   let path = Filename.basename path in
-  printf "path analyzed: %s\n" path;
   (* ignore .* files *)
   if Char.(path.[0] = '.') then true
   else
@@ -79,8 +76,6 @@ let is_ignored_file path ~config =
 
 (* apply [~f] on every `.ml` and `.mli` file found in [folders] *)
 let rec visit folders ~config ~f =
-  List.iter folders ~f:(fun x -> printf "%s, " x);
-  printf "\n";
   match folders with
   | [] -> ()
   | file :: rest -> (
@@ -89,23 +84,21 @@ let rec visit folders ~config ~f =
       | `Yes ->
           let rest =
             let ignored = is_ignored_dir ~config file in
-            if not ignored then (
-              printf "not ignored\n";
+            if not ignored then
               let inside_dirs = Sys.ls_dir file in
               let inside_dirs =
                 List.map inside_dirs ~f:(fun x -> Filename.concat file x)
               in
-              inside_dirs @ rest)
+              inside_dirs @ rest
             else rest
           in
           visit rest ~config ~f
       | `No | `Unknown ->
           let ignored = is_ignored_file ~config file in
-          if not ignored then (
-            printf "not ignored\n";
-            match Filename.split_extension file with
-            | _, Some "ml" | _, Some "mli" -> f file
-            | _ -> ());
+          (if not ignored then
+           match Filename.split_extension file with
+           | _, Some "ml" | _, Some "mli" -> f file
+           | _ -> ());
           visit rest ~config ~f)
 
 (* main *)
