@@ -149,7 +149,7 @@ let enforce_ocamlformat_version config =
         ()
     | Some expected_version ->
         let version = String.rstrip ocamlformat_version in
-        if version = expected_version then ()
+        if String.(version = expected_version) then ()
         else failwith "unexpected ocamlformat version according to config" )
 
 let () =
