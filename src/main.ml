@@ -17,16 +17,16 @@ let parse_toml filename : config option =
     | `Error _ -> failwith "could not parse fromage.toml"
     | `Ok toml -> toml 
     in
-    let config = match Toml.Types.Table.find (Toml.Min.key "config") toml with
-      | TTable config -> config
+    let config = match Toml.Types.Table.find_opt (Toml.Min.key "config") toml with
+      | Some TTable config -> config
       | _ -> failwith "fromage.toml has no config table"
     in
-    let ignored_files = match Toml.Types.Table.find (Toml.Min.key "ignored_files") config with 
-    | TArray (NodeString ignored_files) -> ignored_files
+    let ignored_files = match Toml.Types.Table.find_opt (Toml.Min.key "ignored_files") config with 
+    | Some TArray (NodeString ignored_files) -> ignored_files
     | _ -> []
     in
-    let ignored_dirs = match Toml.Types.Table.find (Toml.Min.key "ignored_dirs") config with 
-    | TArray (NodeString ignored_dirs) -> ignored_dirs
+    let ignored_dirs = match Toml.Types.Table.find_opt (Toml.Min.key "ignored_dirs") config with 
+    | Some TArray (NodeString ignored_dirs) -> ignored_dirs
     | _ -> []
     in 
     Some {
@@ -41,6 +41,7 @@ let parse_toml filename : config option =
 let ocamlformat args =
   let args = String.concat ~sep:" " args in
   let command = "ocamlformat " ^ args in
+  let () = printf "%s\n" command in
   Sys.command_exn command
 
 let run_ocamlformat ~(write :bool) (filename:string) = 
@@ -51,12 +52,22 @@ let run_ocamlformat ~(write :bool) (filename:string) =
 
 (* recursion *)
 
-let is_ignored_dir path ~config =
-  match config with 
-  | None -> false
-  | Some config -> List.mem ~equal:String.( = ) config.ignored_dirs path
+let is_ignored_dir (path:string) ~config =
+  let path = Filename.basename path in
+  (* ignore _* and .* folders *)
+  if (String.get path 0) = '_' || (String.length path > 1 && (String.get path 0) = '.') then
+    true
+  else
+    match config with 
+    | None -> false
+    | Some config -> List.mem ~equal:String.( = ) config.ignored_dirs path
 
 let is_ignored_file path ~config =
+  let path = Filename.basename path in
+  (* ignore .* files *)
+  if (String.get path 0) = '.' then
+    true
+  else
   match config with 
   | None -> false
   | Some config -> List.mem ~equal:String.( = ) config.ignored_files path
@@ -64,6 +75,8 @@ let is_ignored_file path ~config =
 
 (* apply [~f] on every `.ml` and `.mli` file found in [folders] *)
 let rec visit folders ~config ~f =
+  List.iter folders ~f:(fun x -> printf "%s, " x);
+  printf "\n";
   match folders with
   | [] -> ()
   | file :: rest -> (
@@ -71,8 +84,8 @@ let rec visit folders ~config ~f =
       match is_dir with
       | `Yes ->
           let rest = 
-            let to_ignore = is_ignored_dir ~config file in
-            if not to_ignore then (
+            let ignored = is_ignored_dir ~config file in
+            if not ignored then (
               let inside_dirs = Sys.ls_dir file in
               let inside_dirs = List.map inside_dirs ~f:(fun x -> Filename.concat file x) in
               inside_dirs @ rest) 
@@ -80,8 +93,8 @@ let rec visit folders ~config ~f =
             in
           visit rest ~config ~f
       | `No | `Unknown ->
-        let to_ignore = is_ignored_file ~config file in
-        if not to_ignore then 
+        let ignored = is_ignored_file ~config file in
+        if not ignored then 
           (match Filename.split_extension file with
           | (_, Some ".ml") | (_, Some ".mli") -> f file
           | _ -> ()
