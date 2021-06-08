@@ -95,7 +95,7 @@ let rec visit folders ~config ~f =
               let inside_dirs =
                 List.map inside_dirs ~f:(fun x -> Filename.concat file x)
               in
-              inside_dirs @ rest )
+              inside_dirs @ rest)
             else rest
           in
           visit rest ~config ~f
@@ -105,8 +105,8 @@ let rec visit folders ~config ~f =
             printf "not ignored\n";
             match Filename.split_extension file with
             | _, Some "ml" | _, Some "mli" -> f file
-            | _ -> () );
-          visit rest ~config ~f )
+            | _ -> ());
+          visit rest ~config ~f)
 
 (* main *)
 

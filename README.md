@@ -11,11 +11,11 @@ $ opam install fromager
 $ fromager
 ```
 
-It's that simple!
+It's that simple! You don't even need an `.ocamlformat` file.
 
 ## Configuring Fromager
 
-By default, fromager ignore any directory starting with an underscore (`_opam`, `_build`, `_coverage`, etc.).
+By default, fromager ignores any directory starting with an underscore (e.g. `_opam`) or with a dot (e.g. `.git`).
 
 You can optionally´ create a `fromage.toml` file at the root of your project:
 
