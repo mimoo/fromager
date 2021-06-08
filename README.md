@@ -21,6 +21,7 @@ You can optionally create a `fromage.toml` file at the root of your project:
 
 ```toml
 [config]
+ocamlformat_version = "0.18.0"
 ignored_files = []
 ignored_dirs = [ "./some", "./ignored/directories" ]
 ```
