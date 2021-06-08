@@ -4,7 +4,7 @@ Fromager helps you format your codebase.
 
 ## Installation & Usage
 
-If you have [Opam](https://opam.ocaml.org/), the package manger of OCaml, simply do:
+If you have [Opam](https://opam.ocaml.org/), the package manager of OCaml, simply do:
 
 ```console
 $ opam install fromager
