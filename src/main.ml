@@ -109,12 +109,16 @@ let () =
   (* parse fromage.toml *)
   let config = parse_toml fromager_config in
 
-  (* create an empty .ocamlformat *)
+  (* create an empty .ocamlformat if there are none *)
   let ocamlformat_file = Filename.concat cwd ".ocamlformat" in
-  Out_channel.write_all ocamlformat_file ~data:"";
+  let ocamlformat_already_exists =
+    match Sys.file_exists ocamlformat_file with `Yes -> true | _ -> false
+  in
+  if not ocamlformat_already_exists then
+    Out_channel.write_all ocamlformat_file ~data:"";
 
   (* format everything *)
   visit [ "." ] ~config ~f:(run_ocamlformat ~write:true);
 
-  (* remove the .ocamlformat *)
-  Unix.remove ocamlformat_file
+  (* remove the .ocamlformat if there were none *)
+  if not ocamlformat_already_exists then Unix.remove ocamlformat_file
