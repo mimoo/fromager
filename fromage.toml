@@ -1,0 +1,3 @@
+[config]
+ignored_files = []
+ignored_dirs = ["_build", "_opam", "_coverage"]
