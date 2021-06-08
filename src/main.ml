@@ -54,8 +54,9 @@ let run_ocamlformat ~(write :bool) (filename:string) =
 
 let is_ignored_dir (path:string) ~config =
   let path = Filename.basename path in
+  let first_letter = String.get path 0 in
   (* ignore _* and .* folders *)
-  if (String.get path 0) = '_' || (String.length path > 1 && (String.get path 0) = '.') then
+  if Char.(first_letter = '_') || (String.length path > 1 && Char.(first_letter = '.')) then
     true
   else
     match config with 
@@ -65,13 +66,12 @@ let is_ignored_dir (path:string) ~config =
 let is_ignored_file path ~config =
   let path = Filename.basename path in
   (* ignore .* files *)
-  if (String.get path 0) = '.' then
+  if Char.((String.get path 0) = '.') then
     true
   else
   match config with 
   | None -> false
   | Some config -> List.mem ~equal:String.( = ) config.ignored_files path
-  
 
 (* apply [~f] on every `.ml` and `.mli` file found in [folders] *)
 let rec visit folders ~config ~f =
