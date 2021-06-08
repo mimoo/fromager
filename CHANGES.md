@@ -1,3 +1,6 @@
+## 0.3.1 (2020-06-08)
+
+Fixed compilation issue with higher versions of ocaml.
 
 ## 0.3.0 (2020-06-08)
 
