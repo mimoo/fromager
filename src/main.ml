@@ -53,12 +53,12 @@ let run_ocamlformat ~(write : bool) (filename : string) =
 (* recursion *)
 
 let is_ignored_dir (path : string) ~config =
-  let path = Filename.basename path in
-  let first_letter = path.[0] in
+  let basename = Filename.basename path in
+  let first_letter = basename.[0] in
   (* ignore _* and .* folders *)
   if
     Char.(first_letter = '_')
-    || (String.length path > 1 && Char.(first_letter = '.'))
+    || (String.length basename > 1 && Char.(first_letter = '.'))
   then true
   else
     match config with
@@ -66,9 +66,10 @@ let is_ignored_dir (path : string) ~config =
     | Some config -> List.mem ~equal:String.( = ) config.ignored_dirs path
 
 let is_ignored_file path ~config =
-  let path = Filename.basename path in
+  let basename = Filename.basename path in
+  let first_letter = basename.[0] in
   (* ignore .* files *)
-  if Char.(path.[0] = '.') then true
+  if Char.(first_letter = '.') then true
   else
     match config with
     | None -> false
@@ -95,11 +96,11 @@ let rec visit folders ~config ~f =
           visit rest ~config ~f
       | `No | `Unknown ->
           let ignored = is_ignored_file ~config file in
-          (if not ignored then
-           match Filename.split_extension file with
-           | _, Some "ml" | _, Some "mli" -> f file
-           | _ -> ());
-          visit rest ~config ~f)
+          ( if not ignored then
+            match Filename.split_extension file with
+            | _, Some "ml" | _, Some "mli" -> f file
+            | _ -> () );
+          visit rest ~config ~f )
 
 (* main *)
 

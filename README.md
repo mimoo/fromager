@@ -17,15 +17,15 @@ It's that simple! You don't even need an `.ocamlformat` file.
 
 By default, fromager ignores any directory starting with an underscore (e.g. `_opam`) or with a dot (e.g. `.git`).
 
-You can optionally´ create a `fromage.toml` file at the root of your project:
+You can optionally create a `fromage.toml` file at the root of your project:
 
 ```toml
 [config]
 ignored_files = []
-ignored_dirs = ["some", "ignored", "directories]
+ignored_dirs = [ "./some", "./ignored/directories" ]
 ```
 
-## Inside a Github action
+## Enforce formatting in CI by adding a Fromager Github action
 
 ```yml
 name: Run Fromager
