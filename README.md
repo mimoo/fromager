@@ -1,6 +1,6 @@
 # Fromager
 
-Fromager helps you format your codebase.
+Fromager helps you format your codebase by enforcing a common configuration (ocamlformat version, files and directories to ignore).
 
 ## Installation & Usage
 
@@ -25,6 +25,8 @@ ocamlformat_version = "0.18.0"
 ignored_files = []
 ignored_dirs = [ "./some", "./ignored/directories" ]
 ```
+
+By design, you can't tweak ocamlformat as it is discouraged.
 
 ## Enforce formatting in CI by adding a Fromager Github action
 
