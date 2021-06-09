@@ -1,4 +1,4 @@
 [config]
-ocamlformat_version = "0.9"
+ocamlformat_version = "0.18.0"
 ignored_files = ["./tests/test.ml"]
 ignored_dirs = []

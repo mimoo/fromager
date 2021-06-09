@@ -33,5 +33,6 @@ jobs:
           opam-dune-lint
 
           # make sure the formatting is correct :)
+          opam install ocamlformat.0.18.0
           fromager
 
