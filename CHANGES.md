@@ -1,3 +1,7 @@
+## 0.4.0 (2020-06-09)
+
+Remove version constraint on ocamlformat so that one can use whatever ocamlformat version they want.
+
 ## 0.3.1 (2020-06-08)
 
 Fixed compilation issue with higher versions of ocaml.
