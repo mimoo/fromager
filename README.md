@@ -68,5 +68,5 @@ jobs:
           eval $(opam env)
           opam install fromager
           fromager
-          git diff
+          git diff --exit-code
 ```
