@@ -2,6 +2,9 @@
 
 Fromager helps you format your codebase by enforcing a common configuration (ocamlformat version, files and directories to ignore).
 
+Note that fromager actually doesn't add much besides perhaps a better error message or a nicer configuration format (toml) than ocamlformat.
+For this reason, I give indications on how to do the same things with `.ocamlformat` in this README.
+
 ## Installation & Usage
 
 If you have [Opam](https://opam.ocaml.org/), the package manager of OCaml, simply do:
@@ -27,6 +30,11 @@ ignored_dirs = [ "./some", "./ignored/directories" ]
 ```
 
 By design, you can't tweak ocamlformat as it is discouraged.
+
+To do this with ocamlformat directly:
+
+- create an `.ocamlformat` file with `version=0.18.0` as content
+- create an `.ocamlformat-ignore` file with files or folders you want to ignore
 
 ## Enforce formatting in CI by adding a Fromager Github action
 
@@ -69,4 +77,16 @@ jobs:
           opam install fromager
           fromager
           git diff --exit-code
+```
+
+to do this with ocamlformat, replace the format step with:
+
+```
+-name: Format
+run: |
+  eval $(opam env)
+  opam install ocamlformat
+  dune build @fmt
+  dune promote
+  git diff --exit-code
 ```
