@@ -16,31 +16,36 @@ let parse_toml filename : config option =
   | `Yes ->
       let toml =
         match Otoml.Parser.from_file_result filename with
-        | Error msg -> Printf.ksprintf failwith "could not parse fromage.toml:\n%s" msg
+        | Error msg ->
+            Printf.ksprintf failwith "could not parse fromage.toml:\n%s" msg
         | Ok toml -> toml
       in
       let config =
-        match Otoml.find_opt toml Otoml.get_table ["config"] with
+        match Otoml.find_opt toml Otoml.get_table [ "config" ] with
         | Some config -> Otoml.table config
         | _ -> failwith "fromage.toml has no config table"
       in
       let ocamlformat_version =
         match
-          Otoml.find_opt config Otoml.get_string ["ocamlformat_version"]
+          Otoml.find_opt config Otoml.get_string [ "ocamlformat_version" ]
         with
         | Some _ as ov -> ov
         | _ -> None
       in
       let ignored_files =
         match
-          Otoml.find_opt config (Otoml.get_array Otoml.get_string) ["ignored_files"]
+          Otoml.find_opt config
+            (Otoml.get_array Otoml.get_string)
+            [ "ignored_files" ]
         with
         | Some ignored_files -> ignored_files
         | _ -> []
       in
       let ignored_dirs =
         match
-          Otoml.find_opt config (Otoml.get_array Otoml.get_string) ["ignored_dirs"]
+          Otoml.find_opt config
+            (Otoml.get_array Otoml.get_string)
+            [ "ignored_dirs" ]
         with
         | Some ignored_dirs -> ignored_dirs
         | _ -> []
