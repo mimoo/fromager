@@ -56,9 +56,10 @@ let run cmd =
   match res with
   | Ok _ -> r
   | Error (`Exit_non_zero 127) ->
-    Printf.ksprintf failwith "failed to run %s: command not found" cmd
+      Printf.ksprintf failwith "failed to run %s: command not found" cmd
   | Error _ ->
-    Printf.ksprintf failwith "failed to run %s: command exited with an error" cmd
+      Printf.ksprintf failwith "failed to run %s: command exited with an error"
+        cmd
 
 let ocamlformat args =
   let args = String.concat ~sep:" " args in
