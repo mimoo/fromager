@@ -57,8 +57,14 @@ let parse_toml filename : config option =
 let run cmd =
   let inp = Unix.open_process_in cmd in
   let r = In_channel.input_all inp in
-  In_channel.close inp;
-  r
+  let res = Unix.close_process_in inp in
+  match res with
+  | Ok _ -> r
+  | Error (`Exit_non_zero 127) ->
+      Printf.ksprintf failwith "failed to run %s: command not found" cmd
+  | Error _ ->
+      Printf.ksprintf failwith "failed to run %s: command exited with an error"
+        cmd
 
 let ocamlformat args =
   let args = String.concat ~sep:" " args in
