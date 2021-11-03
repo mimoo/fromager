@@ -15,34 +15,39 @@ let parse_toml filename : config option =
   | `No | `Unknown -> None
   | `Yes ->
       let toml =
-        match Toml.Parser.from_filename filename with
-        | `Error _ -> failwith "could not parse fromage.toml"
-        | `Ok toml -> toml
+        match Otoml.Parser.from_file_result filename with
+        | Error msg ->
+            Printf.ksprintf failwith "could not parse fromage.toml:\n%s" msg
+        | Ok toml -> toml
       in
       let config =
-        match Toml.Types.Table.find_opt (Toml.Min.key "config") toml with
-        | Some (TTable config) -> config
+        match Otoml.find_opt toml Otoml.get_table [ "config" ] with
+        | Some config -> Otoml.table config
         | _ -> failwith "fromage.toml has no config table"
       in
       let ocamlformat_version =
         match
-          Toml.Types.Table.find_opt (Toml.Min.key "ocamlformat_version") config
+          Otoml.find_opt config Otoml.get_string [ "ocamlformat_version" ]
         with
-        | Some (TString ocamlformat_version) -> Some ocamlformat_version
+        | Some _ as ov -> ov
         | _ -> None
       in
       let ignored_files =
         match
-          Toml.Types.Table.find_opt (Toml.Min.key "ignored_files") config
+          Otoml.find_opt config
+            (Otoml.get_array Otoml.get_string)
+            [ "ignored_files" ]
         with
-        | Some (TArray (NodeString ignored_files)) -> ignored_files
+        | Some ignored_files -> ignored_files
         | _ -> []
       in
       let ignored_dirs =
         match
-          Toml.Types.Table.find_opt (Toml.Min.key "ignored_dirs") config
+          Otoml.find_opt config
+            (Otoml.get_array Otoml.get_string)
+            [ "ignored_dirs" ]
         with
-        | Some (TArray (NodeString ignored_dirs)) -> ignored_dirs
+        | Some ignored_dirs -> ignored_dirs
         | _ -> []
       in
       Some { ocamlformat_version; ignored_files; ignored_dirs }

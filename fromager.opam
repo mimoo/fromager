@@ -8,9 +8,9 @@ license: "Apache-2.0"
 homepage: "https://github.com/mimoo/fromager"
 bug-reports: "davidwong.crypto@gmail.com"
 depends: [
-  "ocaml" {>= "4.07"}
+  "ocaml" {>= "4.08"}
   "dune" {>= "2.8"}
-  "toml" {>= "7.0"}
+  "otoml" {>= "0.9.2"}
   "core" {>= "v0.12.4"}
   "ocamlformat"
 ]
