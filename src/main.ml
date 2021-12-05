@@ -6,11 +6,16 @@ let fromager_config = "fromage.toml"
 
 type config = {
   ocamlformat_version : string option;
+  ocamlformat_options : (string * string) list;
   ignored_files : string list;
   ignored_dirs : string list;
 }
 
 let parse_toml filename : config option =
+  let toml_value_to_string v =
+    (* Avoid quoting strings since ocamlformat normally uses then un-quotes *)
+    match v with Otoml.TomlString s -> s | _ -> Otoml.Printer.to_string v
+  in
   match Sys.file_exists filename with
   | `No | `Unknown -> None
   | `Yes ->
@@ -50,7 +55,26 @@ let parse_toml filename : config option =
         | Some ignored_dirs -> ignored_dirs
         | _ -> []
       in
-      Some { ocamlformat_version; ignored_files; ignored_dirs }
+      let ocamlformat_options =
+        let translate_key k =
+          String.map k ~f:(fun c -> match c with '_' -> '-' | _ -> c)
+        in
+        let opts_table =
+          Otoml.find_opt toml Otoml.get_table [ "ocamlformat_options" ]
+        in
+        match opts_table with
+        | None -> []
+        | Some kvs ->
+            List.map kvs ~f:(fun (k, v) ->
+                (translate_key k, toml_value_to_string v))
+      in
+      Some
+        {
+          ocamlformat_version;
+          ocamlformat_options;
+          ignored_files;
+          ignored_dirs;
+        }
 
 (* interaction with ocamlformat *)
 
@@ -145,6 +169,22 @@ let enforce_ocamlformat_version config =
           if String.(version = expected_version) then ()
           else failwith "unexpected ocamlformat version according to config")
 
+let file_exists file =
+  match Sys.file_exists file with `Yes -> true | _ -> false
+
+let create_ocamlformat_config config file =
+  let ocamlformat_config =
+    match config with
+    | Some config ->
+        let opts =
+          List.map config.ocamlformat_options ~f:(fun (k, v) ->
+              Printf.sprintf "%s=%s" k v)
+        in
+        String.concat ~sep:"\n" opts
+    | None -> ""
+  in
+  Out_channel.write_all file ~data:ocamlformat_config
+
 let () =
   let cwd = Sys.getcwd () in
   (* parse fromage.toml *)
@@ -153,11 +193,9 @@ let () =
   enforce_ocamlformat_version config;
   (* create an empty .ocamlformat if there are none *)
   let ocamlformat_file = Filename.concat cwd ".ocamlformat" in
-  let ocamlformat_already_exists =
-    match Sys.file_exists ocamlformat_file with `Yes -> true | _ -> false
-  in
+  let ocamlformat_already_exists = file_exists ocamlformat_file in
   if not ocamlformat_already_exists then
-    Out_channel.write_all ocamlformat_file ~data:"";
+    create_ocamlformat_config config ocamlformat_file;
   (* format everything *)
   visit [ "." ] ~config ~f:(run_ocamlformat ~write:true);
   (* remove the .ocamlformat if there were none *)
