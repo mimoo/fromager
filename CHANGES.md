@@ -1,3 +1,9 @@
+## 0.5.0 (2021-12-06)
+
+* Produce an informative error message if ocamlformat is not installed
+* Switch from To.ml to OTOML
+* Add support for passing options to ocamlformat through `[ocamlformat_options]` table
+
 ## 0.4.0 (2020-06-09)
 
 Remove version constraint on ocamlformat so that one can use whatever ocamlformat version they want.
